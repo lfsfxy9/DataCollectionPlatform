@@ -2,8 +2,8 @@ package com.tfjybj.dcp.crawlers;
 
 import cn.wanghaomiao.seimi.annotation.Crawler;
 import cn.wanghaomiao.seimi.def.BaseSeimiCrawler;
-import cn.wanghaomiao.seimi.struct.Request;
 import cn.wanghaomiao.seimi.struct.Response;
+import org.jsoup.nodes.Element;
 import org.seimicrawler.xpath.JXDocument;
 
 import java.util.List;
@@ -14,6 +14,15 @@ import java.util.List;
  */
 @Crawler(name = "basic")
 public class Basic extends BaseSeimiCrawler {
+
+    //教师账号登陆学习通后，查看课程首页
+    private static String teacherCourseUrl = "https://mooc1-1.chaoxing.com/mycourse/teachercourse?moocId=207434064&clazzid=14910088&edit=true&v=0";
+    private static  String courseMenuPath = "//div[@class='timeline']/div[@class='units']/div[@class='leveltwo']";
+
+    //(无需登录）学习通首页-Portal
+    private static String portalUrl = "https://mooc1-1.chaoxing.com/#";
+    private static String portalCourseListPath = "//div[@class='listCon']/dl";
+
     /**
      * @description 用来标记要爬取数据的url地址
      * @author jizg
@@ -24,7 +33,7 @@ public class Basic extends BaseSeimiCrawler {
      */
     @Override
     public String[] startUrls() {
-        return new String[]{"http://www.chaoxing.com/","https://mooc1-1.chaoxing.com/work/getAllWork?classId=14910088&courseId=207434064&isdisplaytable=2&mooc=1&ut=t&enc=eb9a9c828ebd4f8b129c83b2b4bb658e&cpi=123274613&openc=65d00e69846767fa4a03b0497b19deb4"};
+        return new String[]{portalUrl};
     }
 
     /**
@@ -39,10 +48,16 @@ public class Basic extends BaseSeimiCrawler {
     public void start(Response response) {
         JXDocument doc = response.document();
         try {
-            List<Object> urls = doc.sel("//a[@class='searchMenu clearfix']");
-            logger.info("{}", urls.size());
-            for (Object s:urls){
-                push(Request.build(s.toString(), Basic::getTitle));
+            List<Object> objList = doc.sel(portalCourseListPath);
+            for (Object obj : objList){
+                if(obj instanceof Element){
+
+                    //console输出Portal页面中显示的课程名称（title)
+                    System.out.println(((Element) obj).getElementsByAttribute("title").text());
+
+                    //console输出当前Element内容
+                    //System.out.println(obj.toString());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
